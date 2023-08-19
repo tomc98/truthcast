@@ -1,10 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
+    <v-app-bar app dark>
       <div class="d-flex align-center">
         <v-img
           alt="Vuetify Logo"
@@ -27,34 +23,31 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      Team just-do-it
     </v-app-bar>
 
     <v-main>
-      <HelloWorld/>
+      <component :is="currentPage" />
     </v-main>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
+import SettingsPage from './components/SettingsPage';
+import AppPage from './components/AppPage';
 
 export default {
   name: 'App',
 
   components: {
-    HelloWorld,
+    SettingsPage,
+    AppPage,
   },
 
-  data: () => ({
-    //
-  }),
+  computed: {
+    currentPage() {
+      return localStorage.getItem('openaiKey') ? 'AppPage' : 'SettingsPage';
+    },
+  },
 };
 </script>
