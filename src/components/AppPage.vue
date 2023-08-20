@@ -5,7 +5,17 @@
         <!-- Top section -->
         <v-card v-for="id in cards" :key="id">
           <v-card-title>{{ cardInfo[id].transcript }}</v-card-title>
-          <v-card-text> {{ cardInfo[id].researchAI }} </v-card-text>
+          <v-card-text>
+            {{ cardInfo[id].researchAI }}
+            <a
+              v-if="cardInfo[id]?.site"
+              :href="cardInfo[id].site"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ cardInfo[id].site }}
+            </a></v-card-text
+          >
         </v-card>
       </v-col>
     </v-row>
@@ -120,15 +130,18 @@ export default {
     },
     async classify(transcript, unfinishedCheck = false) {
       const classified = await AI.custom(
-        'Classify the text into one of the following categories: "personal", "claim", "general-question", "not-full-sentence" /n Only answer with the category name.',
+        'Classify the text into one of the following categories: "personal", "claim", "general-question", "not-full-sentence", "pull-up" /n Only answer with the category name.',
         transcript,
         [
           { item: 'How old are you', answer: 'personal' },
           { item: 'the grocerry store', answer: 'not-full-sentence' },
+          { item: 'Pull that up', answer: 'pull-up' },
           { item: 'Trump freed thousands of immigrants', answer: 'claim' },
           { item: 'How old are the pyramids', answer: 'general-question' },
           { item: 'I am 20', answer: 'personal' },
+          { item: 'Bring that up', answer: 'pull-up' },
           { item: 'When will', answer: 'not-full-sentence' },
+          { item: 'Pull that shit up Jamie', answer: 'pull-up' },
           { item: 'The pyramids are up to 10500 years old', answer: 'claim' },
           { item: 'Today I went to', answer: 'not-full-sentence' },
           { item: 'how are you going', answer: 'personal' },
@@ -152,6 +165,17 @@ export default {
         this.unfinished = 0;
         this.checkClaim(transcript, transcriptId);
       } else if (classified.includes('general-question')) {
+        // this.createCard(
+        //   transcript,
+        //   transcriptId,
+        //   classified,
+        //   this.transcripts.lenght - 1,
+        //   this.unfinished,
+        //   unfinishedCheck,
+        // );
+        // Not Doing anything with general questions right now. We just want to fix the claim.
+        this.unfinished = 0;
+      } else if (classified.includes('pull-up')) {
         this.createCard(
           transcript,
           transcriptId,
@@ -160,6 +184,7 @@ export default {
           this.unfinished,
           unfinishedCheck,
         );
+        this.pullUp(transcript, transcriptId);
         this.unfinished = 0;
       } else if (classified.includes('personal')) {
         this.createCard(
@@ -231,6 +256,36 @@ export default {
         300,
       );
       this.cardInfo[transcriptId].researchAI = researched;
+      await this.scroll();
+    },
+    async pullUp(claim, transcriptId) {
+      let shortTermContext = '';
+      this.transcripts.slice(-20).forEach((item) => {
+        shortTermContext = `${shortTermContext}, ${item}`;
+      });
+
+      const question = await AI.custom(
+        'You are a research assistant to a podcast, find out what exactly the podcasters want you to pull up based only on the following conversation. Only write the keywords needed to find the answer/need to be googled. Bias towards the most recent conversation. Bias the search towards video content.',
+        shortTermContext,
+        [],
+        'gpt-3.5-turbo',
+      );
+
+      console.log(transcriptId, question);
+      const searched = await GCSE.search(question);
+      let searchsnippets = '';
+      searched.forEach((item) => {
+        searchsnippets = `${searchsnippets} ${item.title}: ${item.snippet} ${item.formattedUrl} /n`;
+      });
+      this.cardInfo[transcriptId].searched = searchsnippets;
+      const researched = await AI.custom(
+        `You are a podcast bot. Use the information you found as well as general knowledge to recomend the most useful/most entertaining webpage possible. The output needs to be a link, only respond with the most relavent link. /n Found Information:/n${searchsnippets}`,
+        shortTermContext,
+        [],
+        'gpt-4-0314',
+        300,
+      );
+      this.cardInfo[transcriptId].site = researched;
       await this.scroll();
     },
     async scroll() {
