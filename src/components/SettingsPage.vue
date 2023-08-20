@@ -12,10 +12,17 @@
         ></v-text-field>
       </v-col>
       <v-col cols="12" sm="6" md="4">
-        <v-text-field v-model="input2" label="Input 2"></v-text-field>
+        <v-text-field
+          v-model="googlesearchKey"
+          :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="show1 ? 'text' : 'password'"
+          counter
+          @click:append="show2 = !show2"
+          label="Google Search Engine API Key"
+        ></v-text-field>
       </v-col>
       <v-col cols="12" sm="6" md="4">
-        <v-text-field v-model="input3" label="Input 3"></v-text-field>
+        <v-text-field v-model="googlesearchId" label="Google Search Engine ID"></v-text-field>
       </v-col>
     </v-row>
     <v-btn color="primary" @click="saveInputs">Save</v-btn>
@@ -36,17 +43,18 @@ export default {
   data() {
     return {
       openaiKey: '',
-      input2: '',
-      input3: '',
+      googlesearchKey: '',
+      googlesearchId: '',
       savedDialog: false,
       show1: false,
+      show2: false,
     };
   },
   mounted() {
     // Load saved inputs from localStorage
     this.openaiKey = localStorage.getItem('openaiKey') || '';
-    this.input2 = localStorage.getItem('input2') || '';
-    this.input3 = localStorage.getItem('input3') || '';
+    this.googlesearchKey = localStorage.getItem('gcseKey') || '';
+    this.googlesearchId = localStorage.getItem('gcseId') || '';
   },
   methods: {
     formatInput1() {
@@ -58,8 +66,8 @@ export default {
     saveInputs() {
       // Save inputs to localStorage
       localStorage.setItem('openaiKey', this.openaiKey);
-      localStorage.setItem('input2', this.input2);
-      localStorage.setItem('input3', this.input3);
+      localStorage.setItem('gcseKey', this.googlesearchKey);
+      localStorage.setItem('gcseId', this.googlesearchId);
 
       // Show saved dialog
       this.savedDialog = true;

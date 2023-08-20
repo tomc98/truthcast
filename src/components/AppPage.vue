@@ -1,25 +1,26 @@
 <template>
-  <v-container>
-    <v-row style="height: 70vh">
+  <v-container :key="refreshKey">
+    <v-row style="height: 70vh" ref="scrollContainer" class="scrollable">
       <v-col>
         <!-- Top section -->
         <v-card v-for="id in cards" :key="id">
           <v-card-title>{{ cardInfo[id].transcript }}</v-card-title>
-          <v-card-text> {{ cardInfo[id] }} </v-card-text>
+          <v-card-text> {{ cardInfo[id].researchAI }} </v-card-text>
         </v-card>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
         <v-card>
-          <div style="display: flex; flex-direction: column; height: 10vh" class="scrollable">
+          <div
+            style="display: flex; flex-direction: column; height: 10vh"
+            ref="scrollContainer2"
+            class="scrollable"
+          >
             <v-card-text v-for="transcript in transcripts" :key="transcript" class="transcript-text"
               >{{ transcript }}
             </v-card-text>
           </div>
-
-          {{ transcripts }}
-          {{ curr }}
 
           <v-card-actions>
             <v-btn @click="toggleTranscription" id="transcript-div">
@@ -39,6 +40,7 @@
 <script>
 import SettingsDialog from './SettingsDialog.vue';
 import AI from '../utils/ai.js';
+import GCSE from '../utils/gcse.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export default {
@@ -56,6 +58,7 @@ export default {
       unfinished: 0, // Number of unfinished parts of the transcription
       cards: [],
       cardInfo: {},
+      refreshKey: 0,
     };
   },
   methods: {
@@ -110,14 +113,9 @@ export default {
       const transcript = received.channel.alternatives[0].transcript;
       if (transcript) {
         this.transcripts.push(transcript);
-        const div = document.querySelector('.scrollable');
-        setTimeout(() => {
-          div.scrollTo({
-            top: div.scrollHeight,
-            behavior: 'smooth',
-          });
-        }, 10);
+
         this.classify(transcript);
+        await this.scroll();
       }
     },
     async classify(transcript, unfinishedCheck = false) {
@@ -152,7 +150,7 @@ export default {
           unfinishedCheck,
         );
         this.unfinished = 0;
-        // this.checkClaim(transcript, transcriptId);
+        this.checkClaim(transcript, transcriptId);
       } else if (classified.includes('general-question')) {
         this.createCard(
           transcript,
@@ -219,9 +217,46 @@ export default {
         'gpt-3.5-turbo',
       );
       console.log(transcriptId, question);
+      const searched = await GCSE.search(question);
+      let searchsnippets = '';
+      searched.forEach((item) => {
+        searchsnippets = `${searchsnippets} ${item.title}: ${item.snippet} ${item.formattedUrl} /n`;
+      });
+      this.cardInfo[transcriptId].searched = searchsnippets;
+      const researched = await AI.custom(
+        `You are a research bot. Use the information you found as well as general knowledge to answer/verify/refute the claim. The output will be on a webpage, you can add links as needed. /n Found Information:/n${searchsnippets}`,
+        claim,
+        [],
+        'gpt-4-0314',
+        300,
+      );
+      this.cardInfo[transcriptId].researchAI = researched;
+      await this.scroll();
+    },
+    async scroll() {
+      this.refreshKey++;
+      // setTimeout(() => {
+      //   const container = this.$refs.scrollContainer;
+      //   container.scrollTop = container.scrollHeight;
+      //   const container2 = this.$refs.scrollContainer2;
+      //   container2.scrollTop = container2.scrollHeight;
+      //   console.log('refreshed');
+      //   return;
+      // }, 50);
     },
     beforeDestroy() {
       this.stopTranscription();
+    },
+  },
+  watch: {
+    refreshKey: function () {
+      this.$nextTick(function () {
+        const container = this.$refs.scrollContainer;
+        const containerz = this.$refs.scrollContainer2;
+        console.log('refreshed');
+        container.scrollTop = container?.scrollHeight || 1000000;
+        containerz.scrollTop = containerz?.scrollHeight || 1000000;
+      });
     },
   },
 };
@@ -230,7 +265,17 @@ export default {
 <style scoped>
 .scrollable {
   overflow: hidden;
+  overflow-y: scroll;
+
+  border: 0px solid #ccc;
+  scrollbar-width: none; /* Firefox 64+ */
+  -ms-overflow-style: none; /* IE 10+ */
 }
+.scrollable::-webkit-scrollbar {
+  width: 0; /* Remove scrollbar space */
+  background: transparent; /* Optional: make scrollbar transparent */
+}
+
 .transcript-text {
   margin: 0;
   padding: 0;
