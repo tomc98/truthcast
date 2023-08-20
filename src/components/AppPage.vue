@@ -15,6 +15,7 @@
         <v-card>
           <v-card-title>Bottom Section</v-card-title>
           <v-card-text> This is the bottom section of the component. </v-card-text>
+          <TranscriptComponent></TranscriptComponent>
           <v-card-actions> </v-card-actions>
         </v-card>
       </v-col>
@@ -28,10 +29,12 @@
 
 <script>
 import SettingsDialog from './SettingsDialog.vue';
+import TranscriptComponent from './TranscriptComponent.vue';
 
 export default {
   components: {
     SettingsDialog,
+    TranscriptComponent,
   },
   data() {
     return {
