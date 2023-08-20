@@ -2,7 +2,14 @@
   <v-container>
     <v-row>
       <v-col cols="12" sm="6" md="4">
-        <v-text-field v-model="openaiKey" label="OpenAI Key" @input="formatInput1"></v-text-field>
+        <v-text-field
+          v-model="openaiKey"
+          :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+          label="OpenAI Key"
+          :type="show1 ? 'text' : 'password'"
+          counter
+          @click:append="show1 = !show1"
+        ></v-text-field>
       </v-col>
       <v-col cols="12" sm="6" md="4">
         <v-text-field v-model="input2" label="Input 2"></v-text-field>
@@ -32,6 +39,7 @@ export default {
       input2: '',
       input3: '',
       savedDialog: false,
+      show1: false,
     };
   },
   mounted() {
