@@ -11,11 +11,13 @@
           @click:append="show1 = !show1"
         ></v-text-field>
       </v-col>
+    </v-row>
+    <v-row>
       <v-col cols="12" sm="6" md="4">
         <v-text-field
           v-model="googlesearchKey"
           :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="show1 ? 'text' : 'password'"
+          :type="show2 ? 'text' : 'password'"
           counter
           @click:append="show2 = !show2"
           label="Google Search Engine API Key"
@@ -23,6 +25,18 @@
       </v-col>
       <v-col cols="12" sm="6" md="4">
         <v-text-field v-model="googlesearchId" label="Google Search Engine ID"></v-text-field>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12" sm="6" md="4">
+        <v-text-field
+          v-model="dgKey"
+          label="Deepgram API Key"
+          :append-icon="show3 ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="show3 ? 'text' : 'password'"
+          counter
+          @click:append="show3 = !show3"
+        ></v-text-field>
       </v-col>
     </v-row>
     <v-btn color="primary" @click="saveInputs">Save</v-btn>
@@ -45,9 +59,11 @@ export default {
       openaiKey: '',
       googlesearchKey: '',
       googlesearchId: '',
+      dgKey: 'd4dec52d18f47c7531490ba643421bcb048f7b16',
       savedDialog: false,
       show1: false,
       show2: false,
+      show3: false,
     };
   },
   mounted() {
@@ -55,6 +71,7 @@ export default {
     this.openaiKey = localStorage.getItem('openaiKey') || '';
     this.googlesearchKey = localStorage.getItem('gcseKey') || '';
     this.googlesearchId = localStorage.getItem('gcseId') || '';
+    this.dgKey = localStorage.getItem('dgKey') || 'd4dec52d18f47c7531490ba643421bcb048f7b16';
   },
   methods: {
     formatInput1() {
@@ -68,6 +85,7 @@ export default {
       localStorage.setItem('openaiKey', this.openaiKey);
       localStorage.setItem('gcseKey', this.googlesearchKey);
       localStorage.setItem('gcseId', this.googlesearchId);
+      localStorage.setItem('dgKey', this.dgKey);
 
       // Show saved dialog
       this.savedDialog = true;

@@ -11,7 +11,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-card>
+        <v-card class="text-md-center">
           <div
             style="display: flex; flex-direction: column; height: 10vh"
             ref="scrollContainer2"
@@ -22,7 +22,7 @@
             </v-card-text>
           </div>
 
-          <v-card-actions>
+          <v-card-actions class="justify-center">
             <v-btn @click="toggleTranscription" id="transcript-div">
               {{ isTranscribing ? 'Stop Transcription' : 'Start Transcription' }}
             </v-btn>
@@ -30,7 +30,7 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-btn class="save-button" color="primary" @click="dialog = true">
+    <v-btn class="save-button" color="grey" @click="dialog = true">
       <v-icon>mdi-cog</v-icon>
     </v-btn>
     <SettingsDialog v-model="dialog"></SettingsDialog>
@@ -78,8 +78,8 @@ export default {
 
       this.mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
 
-      const DG_URL = 'wss://api.deepgram.com/v1/listen?language=en';
-      const DG_KEY = 'd4dec52d18f47c7531490ba643421bcb048f7b16'; // Remember to use securely
+      const DG_URL = 'wss://api.deepgram.com/v1/listen?tier=nova&language=en';
+      const DG_KEY = localStorage.getItem('dgKey'); // Remember to use securely
       this.socket = new WebSocket(DG_URL, ['token', DG_KEY]);
 
       this.socket.onopen = () => {
