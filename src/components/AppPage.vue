@@ -243,6 +243,12 @@ export default {
       );
       console.log(transcriptId, question);
       const searched = await GCSE.search(question);
+      if (!searched || searched.length === 0) {
+        this.cardInfo[transcriptId].searched = 'No results found';
+        this.cardInfo[transcriptId].site = 'No results found';
+        await this.scroll();
+        return;
+      }
       let searchsnippets = '';
       searched.forEach((item) => {
         searchsnippets = `${searchsnippets} ${item.title}: ${item.snippet} ${item.formattedUrl} /n`;
@@ -273,6 +279,12 @@ export default {
 
       console.log(transcriptId, question);
       const searched = await GCSE.search(question);
+      if (!searched || searched.length === 0) {
+        this.cardInfo[transcriptId].searched = 'No results found';
+        this.cardInfo[transcriptId].site = 'No results found';
+        await this.scroll();
+        return;
+      }
       let searchsnippets = '';
       searched.forEach((item) => {
         searchsnippets = `${searchsnippets} ${item.title}: ${item.snippet} ${item.formattedUrl} /n`;
