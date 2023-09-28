@@ -3,7 +3,7 @@
     <v-row style="height: 70vh" ref="scrollContainer" class="scrollable">
       <v-col>
         <!-- Top section -->
-        <v-card v-for="id in cards" :key="id">
+        <v-card v-for="id in cards" :key="id" class="card-spacing">
           <v-card-title>{{ cardInfo[id].transcript }}</v-card-title>
           <v-card-text>
             {{ cardInfo[id].researchAI }}
@@ -14,8 +14,8 @@
               rel="noopener noreferrer"
             >
               {{ cardInfo[id].site }}
-            </a></v-card-text
-          >
+            </a>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -353,5 +353,9 @@ export default {
   position: fixed;
   top: 80px;
   right: 20px;
+}
+
+.card-spacing {
+  margin-bottom: 10px; /* Add margin-bottom for spacing between cards */
 }
 </style>
