@@ -16,7 +16,7 @@
 
       <v-spacer></v-spacer>
 
-      Team just-do-it
+      <p style="font-family: 'Lucida Calligraphy', cursive">Made by Thomas Csere</p>
     </v-app-bar>
 
     <v-main>
